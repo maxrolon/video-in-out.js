@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Automate the play and pause of videos based on scroll",
   "author": "maxrolon",
-  "main": "./dist/main.js",
+  "main": "./src/main.js",
   "engines": {
     "node": "^6.0.0"
   },
