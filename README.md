@@ -1,59 +1,24 @@
-##ASAP TODO: Update readme
+A small module that automates the play and pause of videos based on scroll position of the user. If you need to simply play a video when it is in view of the user and pause it when not, this module is your guy!
 
-Shipping Calculator for Shopify
-==============================
-Fetch Shopify shipping rates for a particular address and render the results.
+**Dependencies**
+This example uses the [RAFScroll](https://gist.github.com/maxrolon/bc6b818b193d6813345e569667b47e83) library to replace ```window.addEventListener('scroll', function(e) {..``` native usage. Replace if you want a simple but less performant option. We also use the [Velocity](http://velocityjs.org/) animation library to fade in the video. Again, replace this with another form of animation if you need!
 
-### Limitations
+**Settings**
+1. readyClass (string)- Class attached to the parentEl when the video is ready to be played
+2. parentEl (Node reference) - The parent of the video to add the readyClass to
+3. autoload (boolean) - Do we want load the video immediately (on instantiation) or when the user scrolls to the video?
+4. fadeIn (function) - The function to call when the video is ready to be played
 
-For use in Shopify-hosted themes only. This module does not support CORS requests.
-
-### Usage
-
-HTML
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Shipping Calculator</title>
-  </head>
-  <body>
-    <form id="shippingCalculator">
-			<div data-type="select-container"></div>
-			<input type="text" name="zip">
-			<input type="submit" value="submit">
-			<div data-type="result"></div>
-		</form>
-    <script src="/services/countries.js"></script>
-    <script src="main.js"></script>
-  </body>
-</html>
+**Usage**
+*InitScripts.js instantiation (no options supplied)*
 ```
-- Request ```/services/countries.js``` before your javascript bundle. This defines a "Countries" global that we use in this library
-- Ensure that an input with name "zip" existings with-in the form element
-- Ensure that an input with type "submit" existings with-in the form element
-- Shipping results can be rendered in an [data-type="results"] element or rendering functionality can be overridden by a defined callback function (see below)
-- Country and province selects will be added to the [data-type="select-container"] element or a defined element (see below)
-
-Javascript
-```javascript
-import shippingCalculator from "./../src/main"
-
-let form = document.getElementById('shippingCalculator')
-shippingCalculator( form, {
-	defaultCountry:"Canada",
-	responseCb:function(JSONData,modelData){},
-	selectContainer:'[data-type="select-container"]'
-})
+  <div class="video-wrap">
+    <video data-src="{{ 'hero-video.mp4' | asset_url }}" width="100%" height="100%" class="hero__video" loop muted data-module="video"></video>
+  </div>
 ```
 
-### Options
+*Vanilla JS instantiation*
+```
+import Video form '<./.../src>'
 
-- **defaultCountry** - This will be selected immediately. Default: United States
-- **reponseCb** - Will be called after the AJAX request completes. This function is passed the raw unparsed JSON from the AJAX request and the address data sent to the AJAX endpoint (Country, Province, Zip)
-- **selectContainer** - A string to query the DOM with, to define where the Country and Province selects will be rendered
-
-### Todo
-1. Write tests
-
+new Video( document.getElementById('Video'), {fadeIn:<function>} );
