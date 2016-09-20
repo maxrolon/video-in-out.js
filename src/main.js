@@ -1,5 +1,5 @@
 import scroll from 'raf-scroll.js'
-import knot from 'knot.js'
+import loop from 'loop.js'
 
 const inViewport = el => {
  let rect = el.getBoundingClientRect()
@@ -17,20 +17,16 @@ const testState = el => el.readyState == 4
 
 const setSrc = el => el.setAttribute('src', el.getAttribute('data-src') )
 
-const addClass = (cssClass, el) => el.classList.add(cssClass)
-
-const fadeIn = el => {
-  //let innerEl = document.querySelector('.js-hero-inner')
-  //Velocity(el.parentNode, "fadeIn", {duration:2000, delay:500})
-  //Velocity(innerEl, "transition.slideUpIn", {duration: 1500})
-}
+const events = loop()
 
 export default (el, opts={}) => {
   const settings = merge({
     readyClass:'video-ready',
     parentEl:el.parentNode,
     autoload:true,
-    fadeIn:fadeIn
+    fadeIn: el => {
+      el.parentNode.classList.add('is-ready')
+    }
   })(opts)
 
   let revealed = false
@@ -38,24 +34,24 @@ export default (el, opts={}) => {
   let paused   = true
 
   let play = () => {
-    if (ready && paused){
+    if (ready){
       paused = false
       el.play()
+      events.emit('play', el)
     } 
   }
 
   let pause = () => {
-    if (!paused){
-      paused = true
-      el.pause()
-    }
+    paused = true
+    el.pause()
+    events.emit('pause', el)
   }
 
   let setReady = (value) => {
-    if (!value) return
     if ( inViewport(el) ) play(el)
     if (!revealed){
       revealed = true
+      events.emit('ready', el)
       settings.fadeIn(el)
     }
     ready = value
@@ -69,17 +65,22 @@ export default (el, opts={}) => {
       if ( !el.getAttribute('src') ){
         setSrc(el)
       }
-      play(el)
+      if (paused) play(el)
     } else {
-      pause(el)
+      if (!paused) pause(el)
     }
   })
 
-  ;['canplaythrough','canplay'].forEach( event => {
-    el.addEventListener(event, () => {
-      setReady( testState(el) )
-    })
+  el.addEventListener('canplaythrough', () => {
+    setReady( testState(el) )
   })
 
   setReady( testState(el) )
+
+  return {
+    on: events.on,
+    play:play,
+    pause:pause,
+    getReady: () => ready
+  }
 }

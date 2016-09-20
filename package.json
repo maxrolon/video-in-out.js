@@ -1,6 +1,6 @@
 {
   "name": "video-in-out.js",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Automate the play and pause of videos based on scroll",
   "author": "maxrolon",
   "main": "./src/main.js",
@@ -34,8 +34,7 @@
     "test": "test"
   },
   "dependencies": {
-    "conform.js": "^0.3.1",
-    "loop.js": "^0.0.1",
+    "loop.js": "0.0.1",
     "raf-scroll.js": "^0.0.4"
   },
   "repository": {

@@ -21,6 +21,8 @@ function defineBundle (srcPath, destPath, debug) {
 		packageCache: {}
 	});
 
+  if (!debug) b['standalone'] = 'video-in-out';
+
 	b.plugin(watchify)
 	b.plugin(bundle, { 
 		delay: 0 

@@ -1,10 +1,40 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-/*!
- * Knot.js 1.1.1 - A browser-based event emitter, for tying things together.
- * Copyright (c) 2016 Michael Cavalea - https://github.com/callmecavs/knot.js
- * License: MIT
- */
-!function(n,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):n.Knot=e()}(this,function(){"use strict";var n={};n["extends"]=Object.assign||function(n){for(var e=1;e<arguments.length;e++){var t=arguments[e];for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(n[r]=t[r])}return n};var e=function(){function e(n,e){return f[n]=f[n]||[],f[n].push(e),this}function t(n,t){return t._once=!0,e(n,t),this}function r(n){var e=arguments.length<=1||void 0===arguments[1]?!1:arguments[1];return e?f[n].splice(f[n].indexOf(e),1):delete f[n],this}function o(n){for(var e=this,t=arguments.length,o=Array(t>1?t-1:0),i=1;t>i;i++)o[i-1]=arguments[i];var u=f[n]&&f[n].slice();return u&&u.forEach(function(t){t._once&&r(n,t),t.apply(e,o)}),this}var i=arguments.length<=0||void 0===arguments[0]?{}:arguments[0],f={};return n["extends"]({},i,{on:e,once:t,off:r,emit:o})};return e});
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports.default = function () {
+  var o = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+  var listeners = {};
+
+  var on = function on(e) {
+    var cb = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+    if (!cb) return;
+    listeners[e] = listeners[e] || { queue: [] };
+    listeners[e].queue.push(cb);
+  };
+
+  var emit = function emit(e) {
+    var data = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+    var items = listeners[e] ? listeners[e].queue : false;
+    items && items.forEach(function (i) {
+      return i(data);
+    });
+  };
+
+  return _extends({}, o, {
+    emit: emit,
+    on: on
+  });
+};
+
 },{}],2:[function(require,module,exports){
 'use strict';
 
@@ -105,11 +135,13 @@ var _rafScroll = require('raf-scroll.js');
 
 var _rafScroll2 = _interopRequireDefault(_rafScroll);
 
-var _knot = require('knot.js');
+var _loop = require('loop.js');
 
-var _knot2 = _interopRequireDefault(_knot);
+var _loop2 = _interopRequireDefault(_loop);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var inViewport = function inViewport(el) {
   var rect = el.getBoundingClientRect();
@@ -133,15 +165,7 @@ var setSrc = function setSrc(el) {
   return el.setAttribute('src', el.getAttribute('data-src'));
 };
 
-var addClass = function addClass(cssClass, el) {
-  return el.classList.add(cssClass);
-};
-
-var fadeIn = function fadeIn(el) {
-  //let innerEl = document.querySelector('.js-hero-inner')
-  //Velocity(el.parentNode, "fadeIn", {duration:2000, delay:500})
-  //Velocity(innerEl, "transition.slideUpIn", {duration: 1500})
-};
+var events = (0, _loop2.default)();
 
 exports.default = function (el) {
   var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -150,7 +174,9 @@ exports.default = function (el) {
     readyClass: 'video-ready',
     parentEl: el.parentNode,
     autoload: true,
-    fadeIn: fadeIn
+    fadeIn: function fadeIn(el) {
+      el.parentNode.classList.add('is-ready');
+    }
   })(opts);
 
   var revealed = false;
@@ -158,24 +184,24 @@ exports.default = function (el) {
   var paused = true;
 
   var play = function play() {
-    if (ready && paused) {
+    if (ready) {
       paused = false;
       el.play();
+      events.emit('play', el);
     }
   };
 
   var pause = function pause() {
-    if (!paused) {
-      paused = true;
-      el.pause();
-    }
+    paused = true;
+    el.pause();
+    events.emit('pause', el);
   };
 
   var setReady = function setReady(value) {
-    if (!value) return;
     if (inViewport(el)) play(el);
     if (!revealed) {
       revealed = true;
+      events.emit('ready', el);
       settings.fadeIn(el);
     }
     ready = value;
@@ -189,17 +215,26 @@ exports.default = function (el) {
       if (!el.getAttribute('src')) {
         setSrc(el);
       }
-      play(el);
+      if (paused) play(el);
     } else {
-      pause(el);
+      if (!paused) pause(el);
     }
-  });['canplaythrough', 'canplay'].forEach(function (event) {
-    el.addEventListener(event, function () {
-      setReady(testState(el));
-    });
+  });
+
+  el.addEventListener('canplaythrough', function () {
+    setReady(testState(el));
   });
 
   setReady(testState(el));
+
+  return {
+    on: events.on,
+    play: play,
+    pause: pause,
+    getReady: function getReady() {
+      return ready;
+    }
+  };
 };
 
-},{"knot.js":1,"raf-scroll.js":2}]},{},[3]);
+},{"loop.js":1,"raf-scroll.js":2}]},{},[3]);
