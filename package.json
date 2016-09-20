@@ -1,6 +1,6 @@
 {
   "name": "video-in-out.js",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Automate the play and pause of videos based on scroll",
   "author": "maxrolon",
   "main": "./src/main.js",
