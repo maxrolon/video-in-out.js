@@ -38,12 +38,17 @@ document.addEventListener('DOMContentLoaded', e => {
 })
 ```
 
-**Dependencies**
+##Dependencies
+
 - [RAFScroll](https://github.com/maxrolon/raf-scroll.js) replaces ```window.addEventListener('scroll', function(e) {..``` native usage with a event omitter that is optimized with Request Animation Frames
 - [loop.js](https://github.com/estrattonbailey/loop.js) provides an event emission API
 
-**Settings**
+##Settings
+
 1. readyClass (string)- Class attached to the parentEl when the video is ready to be played
+
 2. parentEl (Node reference) - The parent of the video to add the readyClass to
+
 3. autoload (boolean) - Do we want load the video immediately (on instantiation) or when the user scrolls to the video?
+
 4. fadeIn (function) - The function to call when the video is ready to be played
