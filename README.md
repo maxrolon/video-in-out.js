@@ -9,7 +9,7 @@ npm i video-in-out.js --save
 #### Create An Instance
 
 ```javascript
-import Video from 'video-in-out'
+import Video from 'video-in-out.js'
 
 document.addEventListener('DOMContentLoaded', e => {
   const videoEl = document.querySelector('video')
