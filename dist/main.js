@@ -198,13 +198,15 @@ exports.default = function (el) {
   };
 
   var setReady = function setReady(value) {
+    if (!value) return;
+    ready = value;
+
     if (inViewport(el)) play(el);
     if (!revealed) {
       revealed = true;
       events.emit('ready', el);
       settings.fadeIn(el);
     }
-    ready = value;
   };
 
   //Add src immediately
