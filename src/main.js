@@ -13,9 +13,31 @@ const merge = defaults => overwrites => {
   return defaults
 }
 
+const isRetina = ( window.devicePixelRatio || window.screen.deviceXDPI / window.screen.logicalXDPI ) > 1
+
 const testState = el => el.readyState == 4
 
-const setSrc = el => el.setAttribute('src', el.getAttribute('data-src') )
+const setSrc = el => {
+  let src
+  if ( ( src = el.getAttribute('data-src'), src ).indexOf(',') > -1 ){
+    let urls = src.split(',').reduce( ( obj, val ) => {
+      let temp = val.replace(/^ |w$/g, '').split(' ')
+      obj[ temp[1] ] = temp[0]
+      return obj
+    }, {} )
+
+    let width = window.innerWidth * ( isRetina ? 1.5 : 1 )
+
+    let nextLargest = Object.keys( urls ).reduce( ( a, b ) => {
+      if ( a > width ) return a
+      return b
+    } )
+
+    el.setAttribute('src', urls[ nextLargest ] )
+  } else {
+    el.setAttribute('src', src )
+  }
+}
 
 const events = loop()
 
