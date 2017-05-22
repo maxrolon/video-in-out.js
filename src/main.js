@@ -34,11 +34,9 @@ export default (el, opts={}) => {
   let paused   = true
 
   let play = () => {
-    if (ready){
-      paused = false
-      el.play()
-      events.emit('play', el)
-    } 
+    paused = false
+    el.play()
+    events.emit('play', el)
   }
 
   let pause = () => {

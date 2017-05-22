@@ -8,12 +8,12 @@ Object.defineProperty(exports, "__esModule", {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.default = function () {
-  var o = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  var o = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
   var listeners = {};
 
   var on = function on(e) {
-    var cb = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+    var cb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     if (!cb) return;
     listeners[e] = listeners[e] || { queue: [] };
@@ -21,7 +21,7 @@ exports.default = function () {
   };
 
   var emit = function emit(e) {
-    var data = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
     var items = listeners[e] ? listeners[e].queue : false;
     items && items.forEach(function (i) {
@@ -168,7 +168,7 @@ var setSrc = function setSrc(el) {
 var events = (0, _loop2.default)();
 
 exports.default = function (el) {
-  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   var settings = merge({
     readyClass: 'video-ready',
@@ -184,11 +184,9 @@ exports.default = function (el) {
   var paused = true;
 
   var play = function play() {
-    if (ready) {
-      paused = false;
-      el.play();
-      events.emit('play', el);
-    }
+    paused = false;
+    el.play();
+    events.emit('play', el);
   };
 
   var pause = function pause() {
